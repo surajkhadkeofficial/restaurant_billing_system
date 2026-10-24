@@ -1,0 +1,6 @@
+{
+  "name": "SwaadPOS - Indian Restaurant Billing & Inventory",
+  "description": "Modern POS billing system for Indian restaurants with GST tax invoices, compact thermal receipts, inventory tracking, and menu management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
