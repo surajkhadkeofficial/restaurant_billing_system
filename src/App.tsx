@@ -20,8 +20,10 @@ import { MenuManager } from './components/MenuManager';
 import { BillLedger } from './components/BillLedger';
 import { ReceiptModal } from './components/ReceiptModal';
 import { RestaurantSettingsModal } from './components/RestaurantSettingsModal';
-import { Github } from 'lucide-react';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { Github, FileText } from 'lucide-react';
 import { Language } from './utils/translations';
+import { generateProjectDocumentationPdf } from './utils/documentationPdf';
 
 export default function App() {
   // Language State with local storage fallback (default to Marathi 'mr')
@@ -116,105 +118,117 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#faf8f5] text-stone-900 flex flex-col font-sans selection:bg-amber-200">
-      
-      {/* Top Header */}
-      <Header
-        currentRestaurant={currentRestaurant}
-        restaurants={restaurants}
-        onSelectRestaurant={setCurrentRestaurant}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        cashierName={cashierName}
-        onOpenSettings={() => setIsSettingsOpen(true)}
-        lang={lang}
-        onToggleLang={setLang}
-      />
-
-      {/* Main Content Viewport */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+    <ErrorBoundary>
+      <div className="min-h-screen bg-[#faf8f5] text-stone-900 flex flex-col font-sans selection:bg-amber-200">
         
-        {activeTab === 'billing' && (
-          <BillingDesk
-            menuItems={menuItems}
-            currentRestaurant={currentRestaurant}
-            cashierName={cashierName}
-            onGenerateBill={handleGenerateBill}
-            nextInvoiceSequence={nextInvoiceSequence}
-            lang={lang}
-          />
-        )}
-
-        {activeTab === 'menu' && (
-          <MenuManager
-            menuItems={menuItems}
-            onAddMenuItem={handleAddMenuItem}
-            onUpdateMenuItem={handleUpdateMenuItem}
-            onDeleteMenuItem={handleDeleteMenuItem}
-            lang={lang}
-          />
-        )}
-
-        {activeTab === 'ledger' && (
-          <BillLedger
-            invoices={invoices}
-            onViewInvoice={(invoice) => setViewingInvoice(invoice)}
-            lang={lang}
-          />
-        )}
-
-      </main>
-
-      {/* Clean, Readable Footer */}
-      <footer className="bg-stone-100 border-t border-stone-200 py-3.5 px-4 text-center text-xs text-stone-600 font-sans print:hidden">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2.5">
-          <div className="font-medium text-stone-800">
-            <span className="font-extrabold text-stone-950 font-display">{currentRestaurant.name}</span> · {currentRestaurant.address}, {currentRestaurant.city} · GSTIN: <span className="font-mono font-bold">{currentRestaurant.gstin}</span>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <span className="text-[11px] text-stone-500">
-              {lang === 'mr' ? 'UPI प्राप्तकर्ता:' : 'UPI Payee:'}{' '}
-              <strong className="text-stone-800">{currentRestaurant.payeeName || 'Suraj Khadke'}</strong>
-            </span>
-            <a
-              href="https://github.com/SurajKhadkeofficial"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-emerald-900 hover:text-emerald-700 font-bold hover:underline font-mono text-[11px]"
-            >
-              <Github className="w-3.5 h-3.5" />
-              <span>SurajKhadkeofficial</span>
-            </a>
-          </div>
-        </div>
-      </footer>
-
-      {/* RECEIPT PREVIEW / PRINT / PDF MODAL */}
-      {viewingInvoice && (
-        <ReceiptModal
-          invoice={viewingInvoice}
-          onClose={() => setViewingInvoice(null)}
-          onNewBill={() => {
-            setViewingInvoice(null);
-            setActiveTab('billing');
-          }}
-          lang={lang}
-        />
-      )}
-
-      {/* RESTAURANT SETTINGS MODAL */}
-      {isSettingsOpen && (
-        <RestaurantSettingsModal
+        {/* Top Header */}
+        <Header
           currentRestaurant={currentRestaurant}
           restaurants={restaurants}
-          onSaveRestaurant={handleSaveRestaurant}
-          onAddNewRestaurant={handleAddNewRestaurant}
-          onClose={() => setIsSettingsOpen(false)}
+          onSelectRestaurant={setCurrentRestaurant}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          cashierName={cashierName}
+          onOpenSettings={() => setIsSettingsOpen(true)}
           lang={lang}
+          onToggleLang={setLang}
         />
-      )}
 
-    </div>
+        {/* Main Content Viewport */}
+        <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+          
+          {activeTab === 'billing' && (
+            <BillingDesk
+              menuItems={menuItems}
+              currentRestaurant={currentRestaurant}
+              cashierName={cashierName}
+              onGenerateBill={handleGenerateBill}
+              nextInvoiceSequence={nextInvoiceSequence}
+              lang={lang}
+            />
+          )}
+
+          {activeTab === 'menu' && (
+            <MenuManager
+              menuItems={menuItems}
+              onAddMenuItem={handleAddMenuItem}
+              onUpdateMenuItem={handleUpdateMenuItem}
+              onDeleteMenuItem={handleDeleteMenuItem}
+              lang={lang}
+            />
+          )}
+
+          {activeTab === 'ledger' && (
+            <BillLedger
+              invoices={invoices}
+              onViewInvoice={(invoice) => setViewingInvoice(invoice)}
+              lang={lang}
+            />
+          )}
+
+        </main>
+
+        {/* Clean, Readable Footer */}
+        <footer className="bg-stone-100 border-t border-stone-200 py-3.5 px-4 text-center text-xs text-stone-600 font-sans print:hidden">
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2.5">
+            <div className="font-medium text-stone-800">
+              <span className="font-extrabold text-stone-950 font-display">{currentRestaurant.name}</span> · {currentRestaurant.address}, {currentRestaurant.city} · GSTIN: <span className="font-mono font-bold">{currentRestaurant.gstin}</span>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => generateProjectDocumentationPdf()}
+                className="inline-flex items-center gap-1 text-emerald-800 hover:text-emerald-950 font-bold hover:underline font-mono text-[11px]"
+                title="Download Project Documentation & Code Explanation (PDF)"
+              >
+                <FileText className="w-3.5 h-3.5 text-amber-600" />
+                <span>{lang === 'mr' ? 'प्रकल्प माहिती व कोड (PDF)' : 'Project & Code Doc (PDF)'}</span>
+              </button>
+
+              <span className="text-[11px] text-stone-500">
+                {lang === 'mr' ? 'UPI:' : 'UPI:'}{' '}
+                <strong className="text-stone-800">{currentRestaurant.payeeName || 'Suraj Khadke'}</strong>
+              </span>
+
+              <a
+                href="https://github.com/SurajKhadkeofficial"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-emerald-900 hover:text-emerald-700 font-bold hover:underline font-mono text-[11px]"
+              >
+                <Github className="w-3.5 h-3.5" />
+                <span>SurajKhadkeofficial</span>
+              </a>
+            </div>
+          </div>
+        </footer>
+
+        {/* RECEIPT PREVIEW / PRINT / PDF MODAL */}
+        {viewingInvoice && (
+          <ReceiptModal
+            invoice={viewingInvoice}
+            onClose={() => setViewingInvoice(null)}
+            onNewBill={() => {
+              setViewingInvoice(null);
+              setActiveTab('billing');
+            }}
+            lang={lang}
+          />
+        )}
+
+        {/* RESTAURANT SETTINGS MODAL */}
+        {isSettingsOpen && (
+          <RestaurantSettingsModal
+            currentRestaurant={currentRestaurant}
+            restaurants={restaurants}
+            onSaveRestaurant={handleSaveRestaurant}
+            onAddNewRestaurant={handleAddNewRestaurant}
+            onClose={() => setIsSettingsOpen(false)}
+            lang={lang}
+          />
+        )}
+
+      </div>
+    </ErrorBoundary>
   );
 }

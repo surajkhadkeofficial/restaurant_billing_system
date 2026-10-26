@@ -8,10 +8,12 @@ import {
   ChevronDown,
   UserCheck,
   Github,
-  Languages
+  Languages,
+  FileText
 } from 'lucide-react';
 import { RestaurantProfile } from '../types';
 import { Language, translations } from '../utils/translations';
+import { generateProjectDocumentationPdf } from '../utils/documentationPdf';
 
 interface HeaderProps {
   currentRestaurant: RestaurantProfile;
@@ -187,6 +189,16 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           </div>
 
+          {/* Download Project & Code Explanation PDF */}
+          <button
+            onClick={() => generateProjectDocumentationPdf()}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-xs font-bold text-amber-300 transition-colors shadow-xs"
+            title={lang === 'mr' ? 'प्रकल्प माहिती व संपूर्ण कोड स्पष्टीकरण (PDF डाऊनलोड करा)' : 'Download Project Documentation & Code Explanation (PDF)'}
+          >
+            <FileText className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <span className="hidden sm:inline">{lang === 'mr' ? 'प्रकल्प PDF' : 'Doc PDF'}</span>
+          </button>
+
           {/* GitHub Profile link for SurajKhadkeofficial */}
           <a
             href="https://github.com/SurajKhadkeofficial"
@@ -245,6 +257,15 @@ export const Header: React.FC<HeaderProps> = ({
         >
           <History className="w-4 h-4 mb-0.5" />
           <span>{lang === 'mr' ? 'इतिहास' : 'Ledger'}</span>
+        </button>
+
+        <button
+          onClick={() => generateProjectDocumentationPdf()}
+          className="flex flex-col items-center py-1 px-2.5 text-xs font-semibold rounded text-amber-300 hover:text-white"
+          title="Download Project & Code Documentation PDF"
+        >
+          <FileText className="w-4 h-4 mb-0.5 text-amber-400" />
+          <span>{lang === 'mr' ? 'दस्तऐवज' : 'Doc PDF'}</span>
         </button>
       </div>
     </header>

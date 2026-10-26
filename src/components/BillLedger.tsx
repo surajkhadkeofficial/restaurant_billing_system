@@ -24,11 +24,12 @@ export const BillLedger: React.FC<BillLedgerProps> = ({
   const [paymentFilter, setPaymentFilter] = useState<'all' | 'cash' | 'upi' | 'card'>('all');
 
   const filteredInvoices = invoices.filter((inv) => {
+    const s = searchTerm.toLowerCase();
     const matchesSearch =
-      inv.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      inv.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      inv.customerPhone.includes(searchTerm) ||
-      inv.tableNumber.toLowerCase().includes(searchTerm.toLowerCase());
+      (inv.invoiceNumber || '').toLowerCase().includes(s) ||
+      (inv.customerName || '').toLowerCase().includes(s) ||
+      (inv.customerPhone || '').toLowerCase().includes(s) ||
+      (inv.tableNumber || '').toLowerCase().includes(s);
 
     const matchesPayment = paymentFilter === 'all' || inv.paymentMode === paymentFilter;
 

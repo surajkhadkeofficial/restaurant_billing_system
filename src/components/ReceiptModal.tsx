@@ -57,21 +57,39 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
     window.print();
   };
 
+  const [noticeMessage, setNoticeMessage] = useState<string | null>(null);
+
   const handleDownloadPdf = async () => {
     setIsExporting(true);
     setDownloadSuccess(false);
+    setNoticeMessage(null);
 
     const elementId = receiptMode === 'thermal' ? 'thermal-receipt-element' : 'a4-invoice-element';
     const cleanFileName = `LaturRoyalDarbar_${invoice.invoiceNumber}`;
     
-    const success = await exportReceiptToPdf(elementId, cleanFileName, receiptMode, invoice);
-    setIsExporting(false);
+    try {
+      const success = await exportReceiptToPdf(elementId, cleanFileName, receiptMode, invoice);
+      setIsExporting(false);
 
-    if (success) {
-      setDownloadSuccess(true);
-      setTimeout(() => setDownloadSuccess(false), 5000);
-    } else {
-      alert(lang === 'mr' ? 'PDF तयार होत आहे. आपण थेट प्रिंट पर्यायातूनही PDF सेव्ह करू शकता!' : 'PDF generation in progress. You can also print and select Save as PDF!');
+      if (success) {
+        setDownloadSuccess(true);
+        setTimeout(() => setDownloadSuccess(false), 5000);
+      } else {
+        setNoticeMessage(
+          lang === 'mr' 
+            ? 'PDF डाऊनलोड सुरू झाले आहे. आपण थेट प्रिंट पर्यायातूनही PDF सेव्ह करू शकता.' 
+            : 'PDF download initiated. You can also use Print -> Save as PDF anytime.'
+        );
+        setTimeout(() => setNoticeMessage(null), 5000);
+      }
+    } catch {
+      setIsExporting(false);
+      setNoticeMessage(
+        lang === 'mr' 
+          ? 'प्रिंट पर्यायातून (Ctrl+P / Command+P) PDF तात्काळ सेव्ह करता येते.' 
+          : 'You can instantly save as PDF using the Print button.'
+      );
+      setTimeout(() => setNoticeMessage(null), 5000);
     }
   };
 
@@ -83,7 +101,13 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
       `Payee: ${payeeName} (${invoice.paymentMode.toUpperCase()})\n` +
       `${lang === 'mr' ? 'पुन्हा अवश्य भेट द्या.' : 'Thank you for visiting!'}`;
     const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
-    window.open(url, '_blank');
+    const a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
 
   return (
@@ -156,6 +180,17 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
               <span>{t.pdfSuccessNotice}</span>
             </div>
             <button onClick={() => setDownloadSuccess(false)} className="text-white hover:opacity-80">✕</button>
+          </div>
+        )}
+
+        {/* Informational Notice Banner */}
+        {noticeMessage && (
+          <div className="bg-amber-700 text-white px-4 py-2 text-xs flex items-center justify-between font-semibold print:hidden">
+            <div className="flex items-center gap-2">
+              <ReceiptIcon className="w-4 h-4 text-amber-200" />
+              <span>{noticeMessage}</span>
+            </div>
+            <button onClick={() => setNoticeMessage(null)} className="text-white hover:opacity-80">✕</button>
           </div>
         )}
 

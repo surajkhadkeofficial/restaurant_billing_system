@@ -6,10 +6,12 @@ import {
   X, 
   ShieldCheck, 
   QrCode, 
-  Github
+  Github,
+  FileText
 } from 'lucide-react';
 import { RestaurantProfile } from '../types';
 import { Language, translations } from '../utils/translations';
+import { generateProjectDocumentationPdf } from '../utils/documentationPdf';
 
 interface RestaurantSettingsModalProps {
   currentRestaurant: RestaurantProfile;
@@ -283,10 +285,21 @@ export const RestaurantSettingsModal: React.FC<RestaurantSettingsModalProps> = (
           </div>
 
           {/* Modal Action Buttons */}
-          <div className="pt-3 border-t border-stone-200 flex items-center justify-between">
-            <span className="text-xs text-emerald-800 font-bold">
-              {saveSuccess ? t.saveSuccessNotice : ''}
-            </span>
+          <div className="pt-3 border-t border-stone-200 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => generateProjectDocumentationPdf()}
+                className="px-3.5 py-2 bg-amber-500/20 hover:bg-amber-500/30 text-emerald-950 font-bold rounded-lg text-xs border border-amber-500/40 flex items-center gap-1.5 transition-colors shadow-2xs"
+                title="Download Project Documentation & Code Explanation (PDF)"
+              >
+                <FileText className="w-3.5 h-3.5 text-emerald-800" />
+                <span>{lang === 'mr' ? 'प्रकल्प माहिती व कोड (PDF)' : 'Project & Code Doc (PDF)'}</span>
+              </button>
+              <span className="text-xs text-emerald-800 font-bold">
+                {saveSuccess ? t.saveSuccessNotice : ''}
+              </span>
+            </div>
 
             <div className="flex items-center gap-2">
               <button

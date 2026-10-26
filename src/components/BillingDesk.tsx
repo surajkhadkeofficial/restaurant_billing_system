@@ -155,7 +155,7 @@ export const BillingDesk: React.FC<BillingDeskProps> = ({
   };
 
   const clearCart = () => {
-    if (cartItems.length > 0 && window.confirm(t.resetCartConfirm)) {
+    if (cartItems.length > 0) {
       setCartItems([]);
       setDiscountValue(0);
       setOrderNotes('');

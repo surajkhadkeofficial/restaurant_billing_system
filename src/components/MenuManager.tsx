@@ -34,6 +34,7 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<FoodCategory>('All');
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<Omit<MenuItem, 'id'>>({
     name: '',
@@ -257,17 +258,35 @@ export const MenuManager: React.FC<MenuManagerProps> = ({
                     <Edit2 className="w-4 h-4" />
                   </button>
 
-                  <button
-                    onClick={() => {
-                      if (window.confirm(t.deleteDishConfirm)) {
-                        onDeleteMenuItem(item.id);
-                      }
-                    }}
-                    className="p-2 text-stone-400 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
-                    title="Delete dish"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  {deletingId === item.id ? (
+                    <div className="flex items-center gap-1 bg-red-50 p-0.5 rounded-lg border border-red-200">
+                      <button
+                        onClick={() => {
+                          onDeleteMenuItem(item.id);
+                          setDeletingId(null);
+                        }}
+                        className="px-2 py-1 text-[11px] font-bold bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                        title="Confirm Delete"
+                      >
+                        {lang === 'mr' ? 'नक्की हटवा?' : 'Confirm?'}
+                      </button>
+                      <button
+                        onClick={() => setDeletingId(null)}
+                        className="px-1.5 py-1 text-[11px] text-stone-600 hover:text-stone-900"
+                        title="Cancel"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setDeletingId(item.id)}
+                      className="p-2 text-stone-400 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Delete dish"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
